@@ -2,6 +2,7 @@
         !$alertDialogue = "/customer-servicing/alert-subscriptions-dialogue/"
         !$alertDialogueInputParametres = "{access Token, Customer-UUID, selected-contract}"
         !$alertDialogueResponse = "{alert-subscriptions-dialogue-id, alert-suscriptions-data}"
+        !$alert-subscription-data = "{available-alerts, suscriptions, contact-details, available-accounts}"
         !$alertProcedure = "/customer-servicing/alert-subscriptions-procedure/"
         !$alertProcedureResponse = ""
 @enduml
