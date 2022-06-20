@@ -1,5 +1,6 @@
 @startuml
         !$alertDialogue = "/customer-servicing/alert-subscriptions-dialogue/"
+        !$alertDialogueInputParametres = "{access Token, Customer-UUID, selected-contract}"
         !$alertDialogueResponse = "{alert-subscriptions-dialogue-id, alert-suscriptions-data}"
         !$alertProcedure = "/customer-servicing/alert-subscriptions-procedure/"
         !$alertProcedureResponse = ""
