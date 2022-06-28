@@ -1,8 +1,86 @@
-@startuml
+@startuml name Fields common library
         !$alertDialogue = "/customer-servicing/alert-subscriptions-dialogue/"
-        !$alertDialogueInputParametres = "{access Token, Customer-UUID, selected-contract}"
-        !$alertDialogueResponse = "{alert-subscriptions-dialogue-id, alert-suscriptions-data}"
-        !$alertSubscriptionData = "{available-alerts, suscriptions, contact-details, available-accounts}"
+        !$alertDialogueInputParametres = "{accessToken, Customer-UUID, selected-account}"
+        !$alertDialogueResponse = "{alert-subscriptions-dialogue-id, alert-subscriptions-data}"
+        !$alertDialogueResponseStructure = {"fields" : ["alert-subscriptions-dialogue-id", "alert-subscriptions-data"]}
+        !$alertSubscriptionData = "{selected-account, subscribed-alerts, available-alerts, entitled-accounts, contact-data}"
+        !$alertSubscriptionDataStructure = {"fields" : ["selected-account", "subscribed-alerts", "available-alerts", "entitled-accounts", "contact-data"]}
+        !$alertDialogueBody = "{access Token, Customer-UUID, selected-contract}"
         !$alertProcedure = "/customer-servicing/alert-subscriptions-procedure/"
+        !$alertProcedureInputParameters = "{accessToken, Customer-UUID, account-UUID, new-subscription-details}"
+        !$alertProcedureBodyInitiate = "{customerId, accountId, subscription-data, access_token}"
+        !$alertProcedureBodyExecute = "{customerId, accountId, subscription-data, access_token2}"
         !$alertProcedureResponse = ""
+@enduml
+@startuml name API Definition
+        !$alertDialogue = {
+                "id" : "alert-subscriptions-dialogue-id",
+                "uri" : "/customer-servicing/alert-subscriptions-dialogue/",
+                "input" : "{accessToken, subscriber, selected-account}",
+                "output" : "{alert-subscriptions-dialogue-id, alert-subscriptions-data}"
+        }
+        !$alertSubscriptionData = "{selected-account, subscribed-alerts, available-alerts, entitled-accounts, contact-data}"
+        !$alertProcedure = {
+                "uri" : "/customer-servicing/alert-subscriptions-procedure/",
+                "input" : "{accessToken, alert-subscriptions-dialogue-id, subscriber, selected-account, subscription-change}",
+                "input2" : "{accessToken2, alert-subscriptions-dialogue-id, subscriber, selected-account, subscription-change, alert-subscriptions-data}",
+                "output" : "{alert-subscriptions-dialogue-id, alert-subscriptions-data}"
+        }
+        !$alertSummary = {
+                "uri" : "/customer-servicing/alert-suscriptions-summary-dialogue/",
+                "input" : "{access Token, subscriber, alert-subscriptions-dialogue-id}",
+                "output" : "{updated-subscriptions}"
+        }
+        !$CustAccMng = {
+                "uri" : "/customer-access-management/agreements",
+                "input" : "user = {accessToken.uid}",
+                "output" : "{agreement-information: {cutomer-id, ...}}"
+        }
+        !$CustAccEnt = {
+                "uri" : "/customer-access-entitlement/entitled-accounts",
+                "input" : "user={UID}&entitlement=santander.sanuk.olb.alerts.manage",
+                "output" : "{entitled-accounts}"
+        }
+        !$CustContr = {
+                "uri" : "customer/{subscriber}/contracts",
+                "input" : "account-id = {selected-account}",
+                "output" : "{contract-data : {contract-id, ... contract-subtype}}"
+        }
+        !$CustCont = {
+                "uri" : "customer/{subscriber}/contacts",
+                "input" : "",
+                "output" : "{customer-contacts}"
+        }
+        !$alertCatalogue = {
+                "uri" : "/alerts-catalogue-management/available-alerts",
+                "input" : "product-type={contract-type}&product-subtype={contract-subtype}",
+                "input2" : "alert-type-id={alert-subscription.alert-type-id}",
+                "output" : "{available-alerts}",
+                "output2" : "{alert-type-definition}"
+        }
+        !$alertSubs = {
+                "uri" : "/alerts-suscription-management/{subscriber}/alert-suscriptions",
+                "id" : "alert-subscription-id",
+                "get" : {
+                        "input" : "account-id={selected-account}",
+                        "output" : "{alert-suscription-list}"
+                },
+                "post" : {
+                        "input" : "{alert-subscription-data}",
+                        "output" : "alert-subscription : {alert-subscription-id, alert-suscription-data}"
+                },
+                "delete" : {
+                        "input" : "{alert-subscription-id}",
+                        "output" : "200 : Subscription Deleted"
+                },
+                "put" : {
+                        "input" : "{alert-subscription}",
+                        "output" : "200 Subscription Updated  : {alert-subscription-id, alert-suscription-data}"
+                }
+        }
+        !$alertSubsUpdate = {
+                "uri" : "/alert-subscription-management/update-subscriptions",
+                "input" : "{customer-id, account-id, [{new-subscription-data}]}",
+                "output" : "[{modified-subscription-result}]"
+        }
 @enduml
