@@ -1,0 +1,124 @@
+openapi: 3.0.0
+info:
+  title: Reusable Definitions
+  description: This is not an API on its own, just a set of definitions that can be reused across different APIs.
+  version: 0.0.1
+paths:
+  /:
+    get:
+      responses:
+        '400' :
+          description: Don't call me!
+
+components:
+  schemas:
+  # Reusable Definitions
+    customer_id:
+      type: string
+      description: >-
+        Customer ID that will receive the alert notification. We expect a UUID
+        format here.
+      format: uuid
+      example: "9f5db10b-5930-431e-b717-a25eb620db81"
+
+    product_id:
+      type: string
+      description: >-
+        Id of the product that the alert is referring to. We expect a UUID
+        format here.
+      format: uuid
+      example: "d2197234-7134-450c-b275-a4a13472d664"
+
+    product_type_id:
+      description: product type of the contract to which the alert is allowed to be subscribed.
+      type: string
+      example: "0023"
+
+    product_sub_type_id:
+      description: product subtype of the contract to which the alert is allowed to be subscribed.
+      type: string
+      example: "3456"
+
+    alert_type_id:
+      type: integer
+      description: id of the catalogue alert type the subscription refers to.
+      example: 65
+
+    communication_channels:
+      type: array
+      description: >-
+        Communication mechanisms that will be used when the alert is triggered.
+        Eg. email, SMS...
+      items:
+        type: string
+        enum:
+          - email
+          - SMS
+          - Push
+      example:
+        - email
+        - SMS
+    
+    day_of_week:
+      description: Includes a day of week in english format (3 letters)
+      type: string
+      enum:
+        - Mon
+        - Tue
+        - Wed
+        - Thu
+        - Fri
+        - Sat
+        - Sun
+      example: 'Wed'
+   # --------------------------------------------------
+
+#Definition for the multilingual text
+    multilingual_text:
+      description: A generic multilingual text.
+      type: array
+      items:
+        $ref: '#/components/schemas/localized_text'
+        
+    localized_text:
+      description: A local specific string.
+      type: object
+      required:
+        - localization
+        - text
+      properties:
+        localization:
+          $ref: '#/components/schemas/accepted_languages'
+        text:
+          description: string with the text in the local language.
+          type: string
+
+    multilingual_list:
+      description: A list of localized_list, contains a number of different version of lists with the same order in different languages.
+      type: array
+      items:
+          $ref: '#/components/schemas/localized_list'
+
+    localized_list:
+      description: A sorted list of texts with the same localization.
+      type: object
+      required:
+        - localization
+        - text_list
+      properties:
+        localization:
+          $ref: '#/components/schemas/accepted_languages'
+        text_list:
+          type: array
+          items: 
+            type: string
+      example:
+        
+
+    accepted_languages:
+      description: list of languages that the api currently accepts.
+      type: string
+      enum:
+        - 'en-gb'
+        - 'es-es'
+#----------------------------------

@@ -1,0 +1,318 @@
+openapi: 3.0.0
+x-santander-catalogation:
+    bian-landscape-version: "10"
+    bian-business-area: "Sales and Service"
+    bian-business-domain: "Customer Management"
+    bian-service-domain: "Customer products and Services"
+x-ibm-configuration:
+  categories:
+  - Type / Core
+  - SanUK Business Domain / Customer Needs & Insights
+  - BIAN Business Area / Sales and Service / Customer Management / Customer products and Services
+info:
+  title: alert_subscriptions_management
+  description: API that allows the CRUD of subscriptions to alerts that have been created.
+  version: 0.0.2
+paths:
+  /alert_suscriptions:
+    get:
+      tags:
+        - Subscription List
+      summary: Returns the list of subscriptions that a subscriber has got.
+      description: Returns the list of subscriptions that a subscriber has got.
+      parameters:
+        - name: subscriber
+          in: query
+          required: true
+          description: UUID of the customer that is subscribing to the alert
+          schema:
+            $ref: '#/components/schemas/customer_id'
+        - name: subscription_product
+          in: query
+          required: false
+          description: product Id of the product the subscription referrs to.
+          schema:
+            $ref: '#/components/schemas/product_id'
+        - name: subscribed_alert
+          in: query
+          required: false
+          description: >-
+            Alert type ID from the catalogue that identifies the alert the
+            customer wants to receive.
+          schema:
+            $ref: '#/components/schemas/alert_type_id'
+      responses:
+        '200':
+          description: A JSON array of subscriptions to alerts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/subscription_list'
+              
+        '404':
+          description: No subscriptions found.
+    post:
+      tags:
+        - Subscription List
+      summary: >-
+        Creates a new subscription to a particular product and subscription
+        type.
+      requestBody:
+        description: The data of a specific alert to be subscribed.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/subscription'
+      responses:
+        '200':
+          description: The subscription has been created.
+          content:
+            application/JSON:
+              schema:
+                $ref: '#/components/schemas/subscription_id_object'
+    put:
+      tags:
+        - Subscription List
+      summary: >-
+        Modifies an existing subscription, it can't change the subscription type
+        or the product just the value of the field if exist or the channels.
+      requestBody:
+        description: The data of a specific modified alert.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/existing_subscription'
+
+      responses:
+        '200':
+          description: The subscription has been updated.
+          content:
+            application/JSON:
+              schema:
+                $ref: '#/components/schemas/subscription_id_object'
+    delete:
+      tags:
+        - Subscription List
+      summary: >-
+        Deletes an existing subscription using the parameters of a subscription
+        (subscriptor_id, subscribed-product, subscriber_alert)
+      parameters:
+        - name: subscribed_alert
+          in: query
+          schema:
+            type: integer
+            description: id of the catalogue alert type the subscription refers to.
+      responses:
+        '200':
+          description: The subscription has been deleted.
+  /alert_subcription/{subscription_id}:
+    parameters:
+      - name: subscription_id
+        in: path
+        required: true
+        description: The Id of an individual subscription.
+        schema:
+          $ref: '#/components/schemas/subscription_id'
+    get:
+      tags:
+        - Subscription
+      summary: Returns a subscription identified by its Id.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/existing_subscription'
+        '404':
+          description: Subscription not found.
+    delete:
+      tags:
+        - Subscription
+      summary: Deletes an existing subscription
+      responses:
+        '200':
+          description: The subscription has been deleted.
+        '404' :
+          description: The subscription does not exist.
+    patch:
+      tags:
+        - Subscription
+      summary: Modifies the allowed fields of a subscribed alert.
+      requestBody:
+        description: Object containing only those parameters that are going to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                modifiedChannels: 
+                  $ref: '#/components/schemas/communication_channels'
+                modified_customization:
+                  $ref: '#/components/schemas/subscription_customization'
+      responses:
+        '200':
+          description: The subscription has been updated.
+          content:
+            application/JSON:
+              schema:
+                $ref: '#/components/schemas/subscription_id_object'
+        '404' :
+          description: The subscription does not exist.
+    
+
+components:
+  
+  schemas:
+
+  #Subscriptions
+    subscription_list:
+      type: object
+      properties:
+        subscription_list:
+          type: array
+          items:
+            type: object
+            properties:
+              subscribed_alert:
+                $ref: '#/components/schemas/existing_subscription'
+    
+    existing_subscription:
+      type: object
+      description: >-
+        A subscription that has been already sent to the back end, therefore it
+        includes a subscription_id
+      required:
+        - subscription_id
+        - subscription
+      properties:
+        subscription_id:
+          $ref: '#/components/schemas/subscription_id'
+        subscription:
+          $ref: '#/components/schemas/subscription'
+    
+    subscription:
+      type: object
+      description: >-
+        Data needed for define a subscription, customer that will receive the
+        notification (subscriber), product that will trigger the alert
+        (subscribed-product) and the alert information (subscribed_alert). It
+        does not include a subscription Id as this is generated in the back-end.
+      required:
+        - subscriber
+        - subscription_product
+        - subscribed_alert
+      properties:
+        subscriber:
+          $ref: '#/components/schemas/customer_id'
+        subscription_product:
+          $ref: '#/components/schemas/product_id'
+        subscribed_alert:
+          $ref: '#/components/schemas/subscribed_alert'
+    
+    subscription_id_object:
+      type: object
+      required:
+        - subscription_id
+      description: Object containing a single subscription_id of the subscription affected by an operation.
+      properties:
+        subscription_id: 
+          $ref: '#/components/schemas/subscription_id'
+
+    subscription_id:
+      type: string
+      description: >-
+        id of a particular subscription (Relates to one subscriber, one
+        subscribed-product and one subscribed_alert).
+      pattern: '^\d{4}\s\d{15}$'
+      example: "0015 000000000395774"
+  #-------------------------    
+    
+    
+  # Subscribed Alerts   
+    subscribed_alert:
+      description: >- 
+        Describes the specific alert to whic the customer has subscribed and the customization applied to it.
+      type: object
+      required:
+        - subscribed_alert_type_id
+        - subscribed_channels
+      properties:
+        subscribed_alert_type_id:
+          $ref: '#/components/schemas/alert_type_id'
+        subscribed_channels:
+          $ref: '#/components/schemas/communication_channels'
+        subscription_customization:
+          $ref: '#/components/schemas/subscription_customization'
+
+    subscription_customization:
+          oneOf:
+            - $ref: '#/components/schemas/amount_field'
+            - $ref: '#/components/schemas/day_of_week_field'
+          discriminator:
+            propertyName: customization_type
+
+    amount_field:
+      description: Describes the different options that an amount field can have.
+      type: object
+      required:
+        - customization_type
+        - value
+        - unit
+      properties:
+        customization_type: 
+          type: string
+          default: amount_field
+          #Not sure if defaulting is a good idea, let's check!
+        value:
+          type: number
+          description: >-
+            actual value of the field. Depending on the actual alert type from
+            the catalogue, the system will need to validate the minimun and
+            maximun if they are stated.
+          example: 1000.00
+        unit:
+          type: string
+          description: >-
+            The unit that the amount is measuring, such as pounds, days or
+            attempts. This unit will be specified by the alert catalogue. A
+            single alert type can support more than one unit, such as different
+            currencies.
+          example: "GBP"
+    
+    day_of_week_field:
+      description: Describes a feld containing a day of the week.
+      type: object
+      required:
+        - customization_type
+        - day_of_week
+      properties:
+        customization_type: 
+          type: string
+          default: day_of_week_field
+        day_of_week:
+          $ref: '#/components/schemas/day_of_week'
+   # --------------------------------------------------
+   
+
+   # Reusable Definitions
+   
+    customer_id:
+      $ref: './common_types.yml#/components/schemas/customer_id'
+
+    product_id:
+      $ref: './common_types.yml#/components/schemas/product_id'
+
+    alert_type_id:
+      $ref: './common_types.yml#/components/schemas/alert_type_id'
+
+    communication_channels:
+     $ref: './common_types.yml#/components/schemas/communication_channels'
+    
+    day_of_week:
+      $ref: './common_types.yml#/components/schemas/day_of_week'
+      
+   # --------------------------------------------------
