@@ -1,0 +1,181 @@
+openapi: 3.0.0
+x-santander-catalogation:
+    bian-landscape-version: "10"
+    bian-business-area: "Sales and Service"
+    bian-business-domain: "Customer Management"
+    bian-service-domain: "Customer products and Services"
+x-ibm-configuration:
+  categories:
+  - Type / Core
+  - SanUK Business Domain / Customer Needs & Insights
+  - BIAN Business Area / Sales and Service / Customer Management / Customer products and Services
+
+
+info:
+  title: alert_catalogue
+  description: API that allows the CRUD of the different alert types in the catalogue. Current version will only support read.
+  version: 0.0.2
+paths:
+  /alert_type_list/:
+    get:
+      tags:
+        - Alert Catalogue
+      summary: Returns the list of different alert types filtered by the provided parameters.
+      description: It will return the relevant alert types by type and subtype of product.
+      parameters:
+        - name: product_type_id
+          in: query
+          required: false
+          description: product type of the contract to which the alert is allowed to be subscribed.
+          schema:
+            $ref: '#/components/schemas/product_type_id'
+        - name: product_sub_type_id
+          in: query
+          required: false
+          description: product subtype of the contract to which the alert is allowed to be subscribed.
+          schema:
+            $ref: '#/components/schemas/product_sub_type_id'
+        - name: alert_type_id
+          in: query
+          required: false
+          description: >-
+            Alert type ID from the catalogue that identifies the alert the
+            customer wants to receive.
+          schema:
+            $ref: '#/components/schemas/alert_type_id'
+      responses:
+        '200':
+          description: A JSON array of alert type descriptions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/alert_type_list'
+              
+                
+        '404':
+          description: No subscriptions found.
+
+components:
+  schemas:
+    alert_type_list:
+      description: A list of alert types.
+      type: array
+      items:
+       $ref: '#/components/schemas/alert_type'
+       
+
+    alert_type:
+      description: An object that describes the caracteristics of an alert type. The alert types defines the specific parameters of an alert subscription. Including boudaries for those parameters (max, min, enums, etc.)
+      type: object
+      required:
+        - alert_type_id
+        - alert_name
+        - alert_description
+        - alert_available_channel
+      properties:
+        alert_type_id:
+          $ref: '#/components/schemas/alert_type_id'
+        alert_name:
+          $ref: '#/components/schemas/multilingual_text'
+        alert_contextual_help:
+          $ref: '#/components/schemas/multilingual_text'
+        alert_available_channels:
+          $ref: '#/components/schemas/communication_channels'
+        alert_custom_parameters:
+          oneOf:
+            - $ref: '#/components/schemas/amount_parameter'
+            - $ref: '#/components/schemas/day_of_week_parameter'
+
+
+    amount_parameter:
+      description: A parametrization consisting in a numeric value and a description of the unit that is measuring. It accepts a number of restrictions as Max, Min, etc.
+      type: object
+      required:
+        - customization_type
+        - parameter_name
+        - parameter_value
+        - parameter_unit
+      properties:
+        customization_type:
+          description: Discriminator field that helps to understand the expected object.
+          type: string
+        parameter_name:
+          $ref: '#/components/schemas/multilingual_text'
+        parameter_type:
+          $ref: '#/components/schemas/allowed_numeric_types'
+        parameter_unit:
+          $ref: '#/components/schemas/allowed_units'
+        minimum_value:
+          type: number
+        maximun_value:
+          type: number
+        default_value:
+          type: number
+
+    day_of_week_parameter:
+      description: A parametrization consisting on choosing a day of the week.
+      type: object
+      required:
+        - customization_type
+        - parameter_name
+        - parameter_type
+        - parameter_value
+      properties:
+        customization_type:
+          description: Discriminator field that helps to understand the expected object.
+          type: string
+        parameter_name:
+          $ref: '#/components/schemas/multilingual_text'
+        parameter_type:
+          $ref: '#/components/schemas/allowed_string_types'
+        parameter_value:
+          description: "List of allowed day of the week that can be selected for the specific alert"
+          type: array
+          items:
+            $ref: '#/components/schemas/day_of_week'
+        parameter_description:
+          description: "Multilingual list of display values for the days of the week."
+          type: array
+          items:
+            $ref: '#/components/schemas/multilingual_list'
+#----------------------------------
+
+#Definition of standard / accepted types
+    allowed_string_types:
+      type: string
+      enum:
+        - string
+
+    allowed_numeric_types:
+      type: string
+      enum:
+        - integer
+        - number
+
+
+    allowed_units:
+      type: string
+      enum:
+        - GBP
+        - Days
+#-------------ext:
+    multilingual_text:
+      $ref: 'https://raw.githubusercontent.com/HJaumandreuS/alert-subscription-management/main/common_types.yml#/components/schemas/multilingual_text'
+
+    multilingual_list:
+      $ref: 'https://raw.githubusercontent.com/HJaumandreuS/alert-subscription-management/main/common_types.yml#/components/schemas/multilingual_list'
+#----------------------------------
+
+
+    product_type_id:
+      $ref: 'https://raw.githubusercontent.com/HJaumandreuS/alert-subscription-management/main/common_types.yml#/components/schemas/product_type_id'
+    product_sub_type_id:
+      $ref: 'https://raw.githubusercontent.com/HJaumandreuS/alert-subscription-management/main/common_types.yml#/components/schemas/product_sub_type_id'    
+    alert_type_id:
+      $ref: 'https://raw.githubusercontent.com/HJaumandreuS/alert-subscription-management/main/common_types.yml#/components/schemas/alert_type_id'
+
+    communication_channels:
+      $ref: 'https://raw.githubusercontent.com/HJaumandreuS/alert-subscription-management/main/common_types.yml#/components/schemas/communication_channels'
+
+    day_of_week:
+      $ref: 'https://raw.githubusercontent.com/HJaumandreuS/alert-subscription-management/main/common_types.yml#/components/schemas/day_of_week'
