@@ -1,17 +1,3 @@
-@startuml name Fields common library
-        !$alertDialogue = "/customer-servicing/alert-subscriptions-dialogue/"
-        !$alertDialogueInputParametres = "{accessToken, Customer-UUID, selected-account}"
-        !$alertDialogueResponse = "{alert-subscriptions-dialogue-id, alert-subscriptions-data}"
-        !$alertDialogueResponseStructure = {"fields" : ["alert-subscriptions-dialogue-id", "alert-subscriptions-data"]}
-        !$alertSubscriptionData = "{selected-account, subscribed-alerts, available-alerts, entitled-accounts, contact-data}"
-        !$alertSubscriptionDataStructure = {"fields" : ["selected-account", "subscribed-alerts", "available-alerts", "entitled-accounts", "contact-data"]}
-        !$alertDialogueBody = "{access Token, Customer-UUID, selected-contract}"
-        !$alertProcedure = "/customer-servicing/alert-subscriptions-procedure/"
-        !$alertProcedureInputParameters = "{accessToken, Customer-UUID, account-UUID, new-subscription-details}"
-        !$alertProcedureBodyInitiate = "{customerId, accountId, subscription-data, access_token}"
-        !$alertProcedureBodyExecute = "{customerId, accountId, subscription-data, access_token2}"
-        !$alertProcedureResponse = ""
-@enduml
 @startuml name API Definition
         !$alertDialogue = {
                 "id" : "alert-subscriptions-dialogue-id",
